@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 
 # arguments related to the dataset
 parser.add_argument("--data_dir",type=str, default='/home/mjc/datasets/CNN_DailyMail/cnn/stories_merged_100/',
-					help='directory where data files are located')
+                    help='directory where data files are located')
 parser.add_argument("--word2idx",type=str, default='word2idx.npy', help='file name for word2idx file')
 parser.add_argument("--idx2word",type=str, default='idx2word.npy', help='file name for idx2word file')
 parser.add_argument("--max_enc",type=int, default=400, help='max length of encoder sequence')
@@ -35,33 +35,33 @@ parser.add_argument("--cuda",type=bool, default=True, help='whether to use GPU')
 args = parser.parse_args()
 
 def main(args):
-	# obtain vocabulary
-	vocab = Vocab(args.vocab_size)
-	vocab.w2i = np.load(args.word2idx).item()
-	vocab.i2w = np.load(args.idx2word).item()
-	vocab.count = len(vocab.w2i)
+    # obtain vocabulary
+    vocab = Vocab(args.vocab_size)
+    vocab.w2i = np.load(args.word2idx).item()
+    vocab.i2w = np.load(args.idx2word).item()
+    vocab.count = len(vocab.w2i)
 
-	# obtain dataset in batches
-	file_list = os.listdir(args.data_dir)
-	batch = Batch(file_list, args.max_enc, args.max_dec)
+    # obtain dataset in batches
+    file_list = os.listdir(args.data_dir)
+    batch = Batch(file_list, args.max_enc, args.max_dec)
 
-	# load model
-	if args.load_model != '':
-		model = torch.load(args.load_model)
-	else:
-		model = Model(args)
-	model = to_cuda(model)
+    # load model
+    if args.load_model != '':
+        model = torch.load(args.load_model)
+    else:
+        model = Model(args)
+    model = to_cuda(model)
 
-	# computation for each epoch
-	epoch = 1
-	while (epoch<=args.epochs):
-		random.shuffle(file_list)
-		for file in file_list:
-			with open(os.path.join(args.data_dir,file)) as f:
-				minibatch = f.read()
-			stories,summaries = batch.process_minibatch(minibatch,vocab)
-			print(stories)
-			print(summaries)
+    # computation for each epoch
+    epoch = 1
+    while (epoch<=args.epochs):
+        random.shuffle(file_list)
+        for file in file_list:
+            with open(os.path.join(args.data_dir,file)) as f:
+                minibatch = f.read()
+            stories,summaries = batch.process_minibatch(minibatch,vocab)
+            print(stories)
+            print(summaries)
 
 if __name__ == "__main__":
     main(args)
